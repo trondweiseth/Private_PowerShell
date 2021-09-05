@@ -1,6 +1,22 @@
+Set-ExecutionPolicy -ExecutionPolicy Unrestricted
 if ($false -eq (Test-Path C:\PSscript\)) {New-Item -Path 'C:\PSscript' -ItemType Directory}
-Move-Item PsScripts.ps1 C:\PsScripts.ps1
+Move-Item PsScripts.ps1 C:\PSscript\PsScripts.ps1
 Get-Content .\PsProfile.ps1 > $PROFILE
 Install-Module posh-git -Scope CurrentUser
 Install-Module oh-my-posh -Scope CurrentUser
 Install-Module -Name PSReadLine -AllowPrerelease -Scope CurrentUser -Force -SkipPublisherCheck
+invoke -wehttps://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/Hack.zip
+Invoke-WebRequest https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/Hack.zip -OutFile .\Hack.zip
+Expand-Archive .\Hack.zip
+cd .\Hack
+echo "Install fonts"
+$fonts = (New-Object -ComObject Shell.Application).Namespace(0x14)
+foreach ($file in gci *.ttf)
+{
+    $fileName = $file.Name
+    if (-not(Test-Path -Path "C:\Windows\fonts\$fileName" )) {
+        echo $fileName
+        dir $file | %{ $fonts.CopyHere($_.fullname) }
+    }
+}
+cp *.ttf c:\windows\fonts\
