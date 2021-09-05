@@ -69,7 +69,7 @@
             {
                 "acrylicOpacity": 1.0,
                 "antialiasingMode": "grayscale",
-                "backgroundImage": "C:\\PsScript\\cybercitywp.jpg",
+                "backgroundImage": "C:\\PSscript\\cybercitywp.jpg",
                 "backgroundImageOpacity": 0.40000000000000002,
                 "colorScheme": "Custom",
                 "commandline": "C:\\Program Files\\PowerShell\\7\\pwsh.exe -nologo",
@@ -83,7 +83,7 @@
                 "useAcrylic": false
             },
             {
-                "backgroundImage": "C:\\PsScript\\cybercitywp.jpg",
+                "backgroundImage": "C:\\PSscript\\cybercitywp.jpg",
                 "backgroundImageOpacity": 0.40000000000000002,
                 "cursorShape": "bar",
                 "experimental.retroTerminalEffect": false,
