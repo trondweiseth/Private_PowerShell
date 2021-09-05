@@ -37,8 +37,8 @@ Function nc() {
         [string]$Status
     )
 
-    $nic = Get-NetAdapter | Where-Object { $_.Status -eq "Up" } | Select-Object -ExpandProperty Name
-    $localip = Get-NetIPAddress -InterfaceAlias $nic -AddressFamily IPv4 | Select-Object -ExpandProperty IPAddress
+    $nic = Get-NetAdapter | where { $_.Status -eq "Up" } | select -ExpandProperty Name
+    $localip = Get-NetIPAddress -InterfaceAlias $nic -AddressFamily IPv4 | select -ExpandProperty IPAddress
 
     Function connquery() {
         if ($Status) {
@@ -62,10 +62,10 @@ Function nc() {
     }
     function resolver() {
         if ($Status) {
-            $iplist = Get-NetTCPConnection -LocalAddress $localip -state $Status | Select-Object -ExpandProperty RemoteAddress
+            $iplist = Get-NetTCPConnection -LocalAddress $localip -state $Status | select -ExpandProperty RemoteAddress
         }
         else {
-            $iplist = Get-NetTCPConnection -LocalAddress $localip | Select-Object -ExpandProperty RemoteAddress
+            $iplist = Get-NetTCPConnection -LocalAddress $localip | select -ExpandProperty RemoteAddress
         }
         if ($Out) {
             $iplist | ForEach-Object { Invoke-RestMethod -Uri http://ip-api.com/json/$_ } | Out-GridView
@@ -108,26 +108,26 @@ Function Get-TcpProcess() {
         [Parameter(ValueFromPipeline = $true)][string]$pipelineinput
     )
     process {
-        $pipelineinput | ForEach-Object { Get-Process -Id $_ | Select-Object Name, Id }
+        $pipelineinput | ForEach-Object { Get-Process -Id $_ | select Name, Id }
     }
 }
 
 Function RemoteConnections() {
     $process = @{
-        Name       = 'ProcessName'
+        Name = 'ProcessName'
         Expression = { (Get-Process -Id $_.OwningProcess).Name }
     }
-
+    
     $darkAgent = @{
-        Name       = 'ExternalIdentity'
+        Name = 'ExternalIdentity'
         Expression = { 
-            $ip = $_.RemoteAddress 
-            (Invoke-RestMethod -Uri "http://ipinfo.io/$ip/json" -UseBasicParsing -ErrorAction Ignore).org
-  
+        $ip = $_.RemoteAddress 
+        (Invoke-RestMethod -Uri "http://ipinfo.io/$ip/json" -UseBasicParsing -ErrorAction Ignore).org
+      
         }
     }
     Get-NetTCPConnection -RemotePort 443 -State Established |
-    Select-Object -Property RemoteAddress, OwningProcess, $process, $darkAgent | Format-Table -autosize -wrap
+        Select-Object -Property RemoteAddress, OwningProcess, $process, $darkAgent | Format-Table -AutoSize
 }
 
 Function Hash() {
@@ -142,7 +142,7 @@ Function Hash() {
 
     if (!$Algorithm) { $Algorithm = 'MD5' }
 
-    $FileHash = Get-FileHash -Path $File -Algorithm $Algorithm | Select-Object -ExpandProperty Hash
+    $FileHash = Get-FileHash -Path $File -Algorithm $Algorithm | Select -ExpandProperty Hash
 
     if ($Compare -eq $FileHash) { Write-Host -ForegroundColor Yellow "$Algorithm hash match." }
     else { Write-Host -ForegroundColor Red "$Algorithm hash do not match!" }
@@ -179,7 +179,7 @@ Function newfunction() {
     )
 	
     function functhelp() {
-        Write-Output "Usage: newfuntion [FunctionNAme] ['executed funtion']"
+        echo "Usage: newfuntion [FunctionNAme] ['executed funtion']"
     }
 
     if (!$FunctionName -or !$FunctionAction) { functhelp }
@@ -210,47 +210,47 @@ Function Service {
         [string]$startup
     )
 	
-    $res = Get-Service -displayname *$comm* -ErrorAction SilentlyContinue | Select-Object status, name, displayname, StartType
-    if ($null -ne $res) {
-        $m = $res | Select-Object -ExpandProperty name | Measure-Object | Select-Object -ExpandProperty Count
+    $res = Get-Service -displayname *$comm* -ErrorAction SilentlyContinue | select status, name, displayname, StartType
+    if ($res -ne $null) {
+        $m = $res | select -ExpandProperty name | measure | select -ExpandProperty Count
         if ($m -gt 1) {
             $servsel = $res | out-gridview -PassThru
-            $servname = $servsel | Select-Object -ExpandProperty Name
+            $servname = $servsel | select -ExpandProperty Name
         }
         else {
-            $servname = $res | Select-Object -ExpandProperty Name
+            $servname = $res | select -ExpandProperty Name
         }
         
     }
     else {
-        $res = Get-Service -name *$comm* | Select-Object status, name, displayname, StartType
-        $m = $res | Select-Object -ExpandProperty name | Measure-Object | Select-Object -ExpandProperty Count
+        $res = Get-Service -name *$comm* | select status, name, displayname, StartType
+        $m = $res | select -ExpandProperty name | measure | select -ExpandProperty Count
         if ($m -gt 1) {
             $servsel = $res | out-gridview -PassThru
-            $servname = $servsel | Select-Object -ExpandProperty Name
+            $servname = $servsel | select -ExpandProperty Name
         }
         else {
-            $servname = $res | Select-Object -ExpandProperty Name
+            $servname = $res | select -ExpandProperty Name
         }
     }
 
     function main() {
-        Get-Service $servname | Select-Object status, name, displayname, StartType | Format-Table -AutoSize -Wrap
+        Get-Service $servname | select status, name, displayname, StartType | ft -AutoSize -Wrap
     }
 	
     if ($dependencies) {
         #(get-service $servname).DependentServices | ft -AutoSize -Wrap
-        (get-service $servname).RequiredServices | Select-Object Status, Name, DisplayName, StartType | Format-Table -AutoSize -Wrap
+        (get-service $servname).RequiredServices | select Status, Name, DisplayName, StartType | ft -AutoSize -Wrap
     }
 	
     elseif ($bringup) {
         Set-Service $servname -StartupType Manual
-        (get-service $servname).RequiredServices | Select-Object Status, Name, StartType | Where-Object { $_.StartType -eq "Disabled" } | ForEach-Object { Set-Service $_.Name -StartupType Manual }
+        (get-service $servname).RequiredServices | select Status, Name, StartType | where { $_.StartType -eq "Disabled" } | foreach { Set-Service $_.Name -StartupType Manual }
         Start-Service $servname
     }
 	
     elseif ($bringdown) {
-        (get-service $servname).RequiredServices | Select-Object Status, Name, StartType | Where-Object { $_.StartType -ne "Disabled" } | ForEach-Object { Set-Service $_.Name -StartupType Disabled }
+        (get-service $servname).RequiredServices | select Status, Name, StartType | where { $_.StartType -ne "Disabled" } | foreach { Set-Service $_.Name -StartupType Disabled }
         stop-Service $servname
         Set-Service $servname -StartupType Disabled
     }
@@ -280,8 +280,8 @@ Function pingsweep() {
         [Parameter(Mandatory = $True, Position = 0)][string]$rhost
     )
     $iprange = $null
-    1..254 | ForEach-Object { $iprange += , "$rhost.$_" }
-    $iprange | ForEach-Object -Parallel { Test-Connection -Count 1 -IPv4 $_ | Select-Object -ExpandProperty Address | Select-Object -ExpandProperty IPAddressToString } -ThrottleLimit 10
+    1..254 | foreach { $iprange += , "$rhost.$_" }
+    $iprange | ForEach-Object -Parallel { Test-Connection -Count 1 -IPv4 $_ | select -ExpandProperty Address | select -ExpandProperty IPAddressToString } -ThrottleLimit 10
 }
 
 Function log () {
@@ -361,25 +361,25 @@ Function log () {
     
         if (!$newest) { $newest = "200" }
         if ($after -and $before) {
-            Get-EventLog -Newest $newest -LogName $logname | Where-Object { $_.TimeGenerated -gt $after -and $_.TimeGenerated -lt $before }
+            Get-EventLog -Newest $newest -LogName $logname | where { $_.TimeGenerated -gt $after -and $_.TimeGenerated -lt $before }
         }
         elseif ($after) {
-            Get-EventLog -Newest $newest -LogName $logname | Where-Object { $_.TimeGenerated -gt $after }
+            Get-EventLog -Newest $newest -LogName $logname | where { $_.TimeGenerated -gt $after }
         }
         elseif ($before) {
-            Get-EventLog -Newest $newest -LogName $logname | Where-Object { $_.TimeGenerated -lt $before }
+            Get-EventLog -Newest $newest -LogName $logname | where { $_.TimeGenerated -lt $before }
         }
         elseif ($date) {
-            Get-EventLog -Newest $newest -LogName $logname | Where-Object { $_.TimeGenerated -imatch $date }
+            Get-EventLog -Newest $newest -LogName $logname | where { $_.TimeGenerated -imatch $date }
         }
         elseif ($date -and $before) {
-            Get-EventLog -Newest $newest -LogName $logname | Where-Object { $_.TimeGenerated -imatch $date -and $_.TimeGenerated -lt $before }
+            Get-EventLog -Newest $newest -LogName $logname | where { $_.TimeGenerated -imatch $date -and $_.TimeGenerated -lt $before }
         }
         elseif ($date -and $before -and $after) {
-            Get-EventLog -Newest $newest -LogName $logname | Where-Object { $_.TimeGenerated -imatch $date -and $_.TimeGenerated -lt $before -and $_.TimeGenerated -gt $after }
+            Get-EventLog -Newest $newest -LogName $logname | where { $_.TimeGenerated -imatch $date -and $_.TimeGenerated -lt $before -and $_.TimeGenerated -gt $after }
         }
         else {
-            Get-EventLog -Newest $newest -LogName $logname | Where-Object { $_.TimeGenerated -imatch "$time" }
+            Get-EventLog -Newest $newest -LogName $logname | where { $_.TimeGenerated -imatch "$time" }
         }
     }
  
@@ -399,37 +399,37 @@ Function log () {
     
         if ($after -and $before) {
             $lognames | ForEach-Object {
-                Get-EventLog -Newest $newest -LogName $_ | Where-Object { $_.TimeGenerated -gt $after -and $_.TimeGenerated -lt $before }
+                Get-EventLog -Newest $newest -LogName $_ | where { $_.TimeGenerated -gt $after -and $_.TimeGenerated -lt $before }
             }
         }
         elseif ($after) {
             $lognames | ForEach-Object {
-                Get-EventLog -Newest $newest -LogName $_ | Where-Object { $_.TimeGenerated -gt $after }
+                Get-EventLog -Newest $newest -LogName $_ | where { $_.TimeGenerated -gt $after }
             }
         }
         elseif ($before) {
             $lognames | ForEach-Object {
-                Get-EventLog -Newest $newest -LogName $_ | Where-Object { $_.TimeGenerated -lt $before }
+                Get-EventLog -Newest $newest -LogName $_ | where { $_.TimeGenerated -lt $before }
             }
         }
         elseif ($date) {
             $lognames | ForEach-Object {
-                Get-EventLog -Newest $newest -LogName $_ | Where-Object { $_.TimeGenerated -imatch $date }
+                Get-EventLog -Newest $newest -LogName $_ | where { $_.TimeGenerated -imatch $date }
             }
         }
         elseif ($date -and $before) {
             $lognames | ForEach-Object {
-                Get-EventLog -Newest $newest -LogName $_ | Where-Object { $_.TimeGenerated -imatch $date -and $_.TimeGenerated -lt $before }
+                Get-EventLog -Newest $newest -LogName $_ | where { $_.TimeGenerated -imatch $date -and $_.TimeGenerated -lt $before }
             }
         }
         elseif ($date -and $before -and $after) {
             $lognames | ForEach-Object {
-                Get-EventLog -Newest $newest -LogName $_ | Where-Object { $_.TimeGenerated -imatch $date -and $_.TimeGenerated -lt $before -and $_.TimeGenerated -gt $after }
+                Get-EventLog -Newest $newest -LogName $_ | where { $_.TimeGenerated -imatch $date -and $_.TimeGenerated -lt $before -and $_.TimeGenerated -gt $after }
             }
         }
         else {
             $lognames | ForEach-Object {
-                Get-EventLog -LogName $_ -Newest $newest | Where-Object { $_.TimeGenerated -imatch "$time" }
+                Get-EventLog -LogName $_ -Newest $newest | where { $_.TimeGenerated -imatch "$time" }
             }
         }
     }
@@ -473,12 +473,12 @@ Function log () {
 }
 
 Function Get-LastBootTime() {
-    $uptime = ((get-date) - (gcim Win32_OperatingSystem).LastBootUpTime | Select-Object -ExpandProperty TotalMinutes)
+    $uptime = ((get-date) - (gcim Win32_OperatingSystem).LastBootUpTime | select -ExpandProperty TotalMinutes)
     (get-date).AddMinutes(-$uptime)
 }
 
 Function Get-Uptime() {
-    (get-date) - (gcim Win32_OperatingSystem).LastBootUpTime | Select-Object Days, Hours, Minutes, Seconds
+    (get-date) - (gcim Win32_OperatingSystem).LastBootUpTime | select Days, Hours, Minutes, Seconds
 }
 
 Function Net-Test {
@@ -832,11 +832,11 @@ Function Get-Tsk {
         if ($start) {Get-ScheduledTask *$TaskName* | Start-ScheduledTask}
             elseif ($stop) {Get-ScheduledTask *$TaskName* | Stop-ScheduledTask}
             elseif ($Info) {
-                $tasknames = Get-ScheduledTask *$TaskName* | Select-Object TaskPath,TaskName -ErrorAction SilentlyContinue
-                foreach ($tsk in $tasknames){Get-ScheduledTaskInfo -TaskPath $tsk.taskpath -TaskName $tsk.taskname -ErrorAction SilentlyContinue | Select-Object TaskName,LastRunTime,NextRunTime}
+                $tasknames = Get-ScheduledTask *$TaskName* | select TaskPath,TaskName -ErrorAction SilentlyContinue
+                foreach ($tsk in $tasknames){Get-ScheduledTaskInfo -TaskPath $tsk.taskpath -TaskName $tsk.taskname -ErrorAction SilentlyContinue | select TaskName,LastRunTime,NextRunTime}
             }
             else {
-                Get-ScheduledTask *$TaskName* | Select-Object TaskName,Date,Description | Format-Table -AutoSize -wrap | Tee-Object -Variable res
+                Get-ScheduledTask *$TaskName* | select TaskName,Date,Description | ft -AutoSize -wrap | Tee-Object -Variable res
                 if($res -eq $null){Write-Warning "No match found!"}
             }
     }
@@ -846,13 +846,13 @@ Function Get-Tsk {
             elseif ($stop) {Invoke-Command -ComputerName $CN -Credential $cred -ArgumentList $TaskName -ScriptBlock {param($TaskName)Get-ScheduledTask $TaskName | Stop-ScheduledTask}}
             elseif ($Info) {
                 Invoke-Command -ComputerName $CN -Credential $cred -ArgumentList $TaskName -ScriptBlock {param($TaskName)
-                $tasknames = Get-ScheduledTask *$TaskName* | Select-Object TaskPath,TaskName -ErrorAction SilentlyContinue
-                foreach ($tsk in $tasknames){Get-ScheduledTaskInfo -TaskPath $tsk.taskpath -TaskName $tsk.taskname -ErrorAction SilentlyContinue | Select-Object TaskName,LastRunTime,NextRunTime}
+                $tasknames = Get-ScheduledTask *$TaskName* | select TaskPath,TaskName -ErrorAction SilentlyContinue
+                foreach ($tsk in $tasknames){Get-ScheduledTaskInfo -TaskPath $tsk.taskpath -TaskName $tsk.taskname -ErrorAction SilentlyContinue | select TaskName,LastRunTime,NextRunTime}
                 }
             }
             else {
                 ComputerNameMsg
-                Invoke-Command -ComputerName $CN -Credential $cred -ArgumentList $TaskName -ScriptBlock {param($TaskName)Get-ScheduledTask *$TaskName* | Select-Object TaskName,Date,Description | ft -AutoSize -wrap} | Tee-Object -Variable res
+                Invoke-Command -ComputerName $CN -Credential $cred -ArgumentList $TaskName -ScriptBlock {param($TaskName)Get-ScheduledTask *$TaskName* | select TaskName,Date,Description | ft -AutoSize -wrap} | Tee-Object -Variable res
                 if($res -eq $null){Write-Warning "No match found!"}
             }
         }
