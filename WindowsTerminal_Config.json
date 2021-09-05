@@ -39,13 +39,14 @@
             "bellStyle": "none",
             "fontFace": "CaskaydiaCove NF",
             "foreground": "#8FF0A4",
+            "backgroundImage": "C:\\PSscript\\cybercitywp.jpg",
             "useAcrylic": false
         },
         "list": 
         [
             {
                 "acrylicOpacity": 0.0,
-                "backgroundImage": "C:\\Users\\tweiseth\\Downloads\\cybercitywp.jpg",
+                "backgroundImage": "C:\\PSscript\\cybercitywp.jpg",
                 "backgroundImageOpacity": 0.5,
                 "colorScheme": "Custom",
                 "commandline": "powershell.exe -nologo",
