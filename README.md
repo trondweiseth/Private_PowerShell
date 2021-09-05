@@ -1,11 +1,11 @@
 # Private_PowerShell
 Personal PowerShell profile and scripts
 
-1) Download this repo as zip
+1) Download this repo as zip:
 
             Invoke-WebRequest https://github.com/trondweiseth/Private_PowerShell/archive/refs/heads/main.zip -OutFile Private_PowerShell.zip
             
-or using git clone
+or using git clone:
 
             git clone https://github.com/trondweiseth/Private_PowerShell.git
 
