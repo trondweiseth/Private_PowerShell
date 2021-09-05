@@ -156,22 +156,6 @@ Function ss() {
     & $PROFILE
 }
 
-Function osl() {
-    ssh tweiset@bf-linbast08.osl.basefarm.net
-}
-
-Function sth() {
-    ssh tweiset@bf-linbast08.sth.basefarm.net
-}
-
-Function ams() {
-    ssh tweiset@bf-linbast08.ams.basefarm.net
-}
-
-Function ai() {
-    ssh tweiset@ai-adm-lbast01.ai-admin.osl.basefarm.net
-}
-
 Function newfunction() {
     param(
         [Parameter(Mandatory = $false, Position = 0)][string]$FunctionName,
