@@ -6,17 +6,8 @@ Install-Module posh-git -Scope CurrentUser
 Install-Module oh-my-posh -Scope CurrentUser
 Install-Module -Name PSReadLine -AllowPrerelease -Scope CurrentUser -Force -SkipPublisherCheck
 invoke -wehttps://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/Hack.zip
-Invoke-WebRequest https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/Hack.zip -OutFile .\Hack.zip
-Expand-Archive .\Hack.zip
-cd .\Hack
-echo "Install fonts"
-$fonts = (New-Object -ComObject Shell.Application).Namespace(0x14)
-foreach ($file in gci *.ttf)
-{
-    $fileName = $file.Name
-    if (-not(Test-Path -Path "C:\Windows\fonts\$fileName" )) {
-        echo $fileName
-        dir $file | %{ $fonts.CopyHere($_.fullname) }
-    }
-}
-cp *.ttf c:\windows\fonts\
+Invoke-WebRequest https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/CascadiaCode.zip -OutFile .\CascadiaCode.zip
+Expand-Archive .\CascadiaCode.zip
+Remove-Item -Force CascadiaCode.zip
+cd .\CascadiaCode
+Move-Item * C:\Windows\Fonts\
