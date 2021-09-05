@@ -1,3 +1,5 @@
+if ($false -eq (Test-Path C:\PSscript\)) {New-Item -Path 'C:\PSscript' -ItemType Directory}
+Move-Item 
 Install-Module posh-git -Scope CurrentUser
 Install-Module oh-my-posh -Scope CurrentUser
 Install-Module -Name PSReadLine -AllowPrerelease -Scope CurrentUser -Force -SkipPublisherCheck
