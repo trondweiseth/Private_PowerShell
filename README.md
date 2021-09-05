@@ -12,4 +12,4 @@ or using git clone:
 2) Open Powershell as administrator and run the profile installer.
 3) If you use Widnows Terminal, copy the json config to Windows Terminal json config
 
-![sccmtool](https://github.com/trondweiseth/Private_PowerShell/blob/main/winterminal.png)
+![winterminal](https://github.com/trondweiseth/Private_PowerShell/blob/main/winterminal.png)
